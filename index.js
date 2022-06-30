@@ -22,8 +22,15 @@ async function run(){
         app.post("/task", async (req, res) => {
           const task = req.body;
           const result = await taskCollection.insertOne(task)
-          res.send(result)
+          res.send(result);
       });
+      // user get all task
+      app.get('/allTask',async(req,res)=>{
+        const query={}
+        const cursor = taskCollection.find(query);
+        const result = await cursor.toArray();
+        res.send(result)
+      })
     }
     finally{
     }
