@@ -17,20 +17,23 @@ async function run(){
     try{
         await client.connect();
         const taskCollection =client.db('end_game').collection('task');
+        const finishedCollection =client.db('end_game').collection('finished');
 
-      // user add product 
+      // user add task 
       app.post("/task", async (req, res) => {
         const task = req.body;
         const result = await taskCollection.insertOne(task)
         res.send(result);
       });
+      
       // user get all task
       app.get('/allTask',async(req,res)=>{
         const query={}
         const cursor = taskCollection.find(query);
         const result = await cursor.toArray();
         res.send(result)
-      })
+      });
+
       // user update task
       app.put('/task/:id', async (req, res) => {
         const id = req.params.id;
@@ -44,7 +47,41 @@ async function run(){
         }
         const result = await taskCollection.updateOne(filter, updateDoc,options)
         res.send(result)
+    });
+
+    // user post completed route
+    app.post("/finished", async (req, res) => {
+      const task = req.body;
+      const result = await finishedCollection.insertOne(task)
+      res.send(result);
+    });
+
+    // user get all task
+    app.get('/allTask/:id',async(req,res)=>{
+      const id = req.params.id;
+      console.log(id)
+      const query={_id:ObjectId(id)} 
+      const cursor = await taskCollection.findOne(query);
+      // const result = await cursor.toArray();
+      res.send(cursor)
+    });
+
+    // user task delete
+    app.delete('/task/:id',async(req,res)=>{
+      const id=req.params.id;
+      const query={_id:ObjectId(id)}
+      const result = await taskCollection.deleteOne(query)
+      res.send(result)
     })
+
+    // get all completed task
+    app.get('/allfinished',async(req,res)=>{
+      const query={}
+      const cursor = finishedCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result)
+    });
+
     }
     finally{
     }
