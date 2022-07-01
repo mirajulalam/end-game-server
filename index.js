@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -18,11 +18,11 @@ async function run(){
         await client.connect();
         const taskCollection =client.db('end_game').collection('task');
 
-        // user add product 
-        app.post("/task", async (req, res) => {
-          const task = req.body;
-          const result = await taskCollection.insertOne(task)
-          res.send(result);
+      // user add product 
+      app.post("/task", async (req, res) => {
+        const task = req.body;
+        const result = await taskCollection.insertOne(task)
+        res.send(result);
       });
       // user get all task
       app.get('/allTask',async(req,res)=>{
@@ -31,6 +31,20 @@ async function run(){
         const result = await cursor.toArray();
         res.send(result)
       })
+      // user update task
+      app.put('/task/:id', async (req, res) => {
+        const id = req.params.id;
+        const updateTask = req.body;
+        const filter = { _id: ObjectId(id) }
+        const options = {upsert:true}
+        const updateDoc = {
+            $set: {
+                task:updateTask.task
+            }
+        }
+        const result = await taskCollection.updateOne(filter, updateDoc,options)
+        res.send(result)
+    })
     }
     finally{
     }
